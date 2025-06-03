@@ -1,0 +1,26 @@
+.header-custom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 95vw;
+}
+
+.logo-box {
+  width: 5vw;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.img-logo {
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+}
+
+.menu-box {
+  width: 10vw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
