@@ -1,14 +1,16 @@
-import { Card, Divider, Typography, Image } from "antd";
+import { Card, Divider, Typography, Image, Button, Input, message } from "antd";
 import { use, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import { getPhotos } from "../../services/PhotoService";
+import { createComment, getPhotos } from "../../services/PhotoService";
 import { getAllUser } from "../../services/UserService";
 
 const { Text } = Typography;
+const { TextArea } = Input;
 
 const UserPhotos = () => {
   const [photos, setPhotos] = useState([]);
   const [users, setUsers] = useState([]);
+  const [commentInput, setCommentInput] = useState({});
   const params = useParams();
   const { userId } = params;
 
@@ -16,7 +18,7 @@ const UserPhotos = () => {
     const fetchApi = async () => {
       const result = await getPhotos(userId);
       const result2 = await getAllUser();
-      console.log(result2.users);
+      // console.log(result2.users);
       setPhotos(result.photos);
       setUsers(result2.users);
     };
@@ -28,11 +30,34 @@ const UserPhotos = () => {
       ? `${user.first_name}` + " " + `${user.last_name}`
       : "Người dùng ẩn danh";
   };
-  const handleAddComment = (e) => {
-    console.log(e);
+  const handleAddComment = async (photoId) => {
+    const comment = commentInput[photoId];
+    if (!comment || comment.trim() === "") {
+      message.warning("Vui lòng nhập nội dung trước khi bình luận");
+      return;
+    }
+    try {
+      const result = await createComment(photoId, { comment: comment });
+      console.log(result);
+      message.success(result.data.message);
+      setPhotos((prev) =>
+        prev.map((photo) => (photo._id === photoId ? result.data.photo : photo))
+      );
+
+      setCommentInput((prev) => ({
+        ...prev,
+        [photoId]: "",
+      }));
+    } catch (error) {
+      console.log("lỗi:", error);
+      message.error("Lỗi server");
+    }
   };
-  const handleComment = (e) => {
-    console.log(e);
+  const handleChange = (photoId, value) => {
+    setCommentInput((prev) => ({
+      ...prev,
+      [photoId]: value,
+    }));
   };
 
   return (
@@ -77,21 +102,21 @@ const UserPhotos = () => {
             <Text type="secondary">Chưa có bình luận nào.</Text>
           )}
           {/* Nhập comment  */}
-          {/* <div style={{ marginTop: "12px" }}> */}
-          {/* <TextArea
+          <div style={{ marginTop: "12px" }}>
+            <TextArea
               rows={2}
               placeholder="Nhập bình luận..."
-              value={commentTexts[photo._id] || ""}
-              onChange={handleComment}
+              value={commentInput[photo._id] || ""}
+              onChange={(e) => handleChange(photo._id, e.target.value)}
             />
             <Button
               type="primary"
-              onClick={handleAddComment}
+              onClick={() => handleAddComment(photo._id)}
               style={{ marginTop: "8px" }}
             >
               Gửi bình luận
             </Button>
-          </div> */}
+          </div>
         </Card>
       ))}
     </div>
