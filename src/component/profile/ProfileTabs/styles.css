@@ -1,0 +1,42 @@
+/* Dùng scope riêng để không ảnh hưởng Tabs chỗ khác */
+.custom-tabs .ant-tabs-nav {
+  margin-bottom: 24px !important;
+  border-bottom: 1px solid rgba(128, 90, 213, 0.3); /* tím mờ */
+}
+
+.custom-tabs .ant-tabs-tab {
+  color: #c3b5ff !important; /* chữ tím nhạt */
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  padding: 8px 14px !important;
+}
+
+.custom-tabs .ant-tabs-tab:hover {
+  color: #fff !important;
+  text-shadow: 0 0 6px rgba(162, 102, 255, 0.8);
+}
+
+/* Tab đang active */
+.custom-tabs .ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #ffffff !important;
+  font-weight: 600;
+  text-shadow: 0 0 8px rgba(180, 85, 255, 0.95);
+}
+
+/* Gạch underline active */
+.custom-tabs .ant-tabs-ink-bar {
+  background: linear-gradient(90deg, #b26bff, #d577ff, #a764ff);
+  height: 3px !important;
+  border-radius: 10px;
+}
+
+/* Xóa background mặc định khi type="card" (nếu có) */
+.custom-tabs .ant-tabs-tab {
+  background: transparent !important;
+}
+
+/* Màu panel */
+.custom-tabs .ant-tabs-content-holder {
+  background: transparent !important;
+}

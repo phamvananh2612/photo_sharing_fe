@@ -1,31 +1,50 @@
-const { get, post, patch, del } = require("../utils/request");
+const { get, post, patch } = require("../utils/request");
 
-// hàm xử lý lấy toàn bộ danh sách người dùng
+// Lấy toàn bộ danh sách người dùng
+// GET /api/users
 export const getAllUser = async () => {
-  const result = await get("user/list");
+  const result = await get("api/users");
   return result;
 };
 
-// hàm xử lý lấy danh sách chi tiết 1 người dùng
+// Lấy chi tiết 1 người dùng
+// GET /api/users/:id
 export const getDetailUser = async (id) => {
-  const result = await get(`user/${id}`);
+  const result = await get(`api/users/${id}`);
   return result;
 };
 
-// hàm xử lý đăng kí
+// Đăng ký (tạo mới user)
+// POST /api/users
 export const createUser = async (options) => {
-  const result = await post("user", options);
+  const result = await post("api/users", options);
   return result;
 };
 
-// hàm xử lý đăng nhập
+// Đăng nhập
+// POST /api/auth/login
 export const checkUser = async (options) => {
-  const result = await post("admin/login", options);
+  const result = await post("api/auth/login", options);
   return result;
 };
 
-// hàm xử lý đăng xuất
+// Đăng xuất
+// POST /api/auth/logout
 export const logoutUser = async () => {
-  const result = await post("admin/logout");
+  const result = await post("api/auth/logout");
   return result;
+};
+
+// Update infor user
+// PATCH /api/user/:userId
+export const updateUser = async (id, options = {}) => {
+  const formData = new FormData();
+
+  Object.entries(options).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      formData.append(key, value);
+    }
+  });
+
+  return await patch(`api/users/${id}`, formData);
 };

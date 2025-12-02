@@ -1,0 +1,131 @@
+/* -----------------------------------------------------
+   GENERAL MODAL CONTAINER (Áp dụng chung cho mọi modal)
+------------------------------------------------------ */
+
+.custom-modal .ant-modal-content {
+  background: rgba(18, 0, 30, 0.75) !important; /* tím blur */
+  backdrop-filter: blur(14px) saturate(160%) !important;
+  border: 1px solid rgba(168, 85, 247, 0.4) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 0 40px rgba(168, 85, 247, 0.32) !important;
+  padding: 24px !important;
+}
+
+/* HEADER */
+.custom-modal .ant-modal-header {
+  background: transparent !important;
+  border-bottom: none !important;
+  padding-bottom: 10px !important;
+}
+
+.custom-modal .ant-modal-title {
+  color: #e9d5ff !important;
+  font-weight: 600;
+  font-size: 20px;
+}
+
+/* CLOSE ICON */
+.custom-modal .ant-modal-close {
+  color: #e9d5ff !important;
+  opacity: 0.8;
+}
+
+.custom-modal .ant-modal-close:hover {
+  opacity: 1;
+  text-shadow: 0 0 8px rgba(214, 128, 255, 1);
+}
+
+/* -----------------------------------------------------
+   FORM ELEMENTS (text field modal)
+------------------------------------------------------ */
+
+/* Label */
+.custom-modal .ant-form-item-label > label {
+  color: #e9d5ff !important;
+  font-weight: 500;
+}
+
+/* Required star */
+.custom-modal .ant-form-item-required::before {
+  color: #d946ef !important; /* hồng tím */
+}
+
+/* Input / TextArea */
+.custom-modal .ant-input,
+.custom-modal .ant-input-affix-wrapper,
+.custom-modal .ant-input-textarea {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(168, 85, 247, 0.35) !important;
+  color: #fff !important;
+  border-radius: 10px !important;
+  transition: all 0.25s ease;
+}
+
+/* Hover input */
+.custom-modal .ant-input:hover,
+.custom-modal .ant-input-affix-wrapper:hover,
+.custom-modal .ant-input-textarea:hover {
+  border-color: rgba(192, 132, 252, 0.8) !important;
+}
+
+/* Focus input */
+.custom-modal .ant-input:focus,
+.custom-modal .ant-input-affix-wrapper-focused,
+.custom-modal .ant-input-textarea:focus {
+  border-color: #c084fc !important;
+  box-shadow: 0 0 4px #c084fc !important;
+}
+
+/* Placeholder */
+.custom-modal .ant-input::placeholder,
+.custom-modal .ant-input-textarea::placeholder {
+  color: rgba(216, 180, 254, 0.5) !important;
+}
+
+/* Error */
+.custom-modal .ant-form-item-explain-error {
+  color: #fb7185 !important; /* đỏ hồng */
+}
+
+/* -----------------------------------------------------
+   FOOTER BUTTONS (áp dụng chung)
+------------------------------------------------------ */
+
+.custom-modal .ant-modal-footer {
+  border-top: none !important;
+}
+
+/* Primary (Lưu) */
+.custom-modal .ant-btn-primary {
+  background: #8b5cf6 !important;
+  border-color: #8b5cf6 !important;
+  color: white !important;
+  border-radius: 10px;
+  padding: 6px 20px !important;
+}
+
+.custom-modal .ant-btn-primary:hover {
+  background: #a855f7 !important;
+}
+
+/* Default (Hủy) */
+.custom-modal .ant-btn-default {
+  background: rgba(255, 255, 255, 0.08) !important;
+  color: #d8b4fe !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 10px;
+  padding: 6px 20px !important;
+}
+
+.custom-modal .ant-btn-default:hover {
+  background: rgba(255, 255, 255, 0.16) !important;
+}
+
+/* -----------------------------------------------------
+   UPLOAD BOX (Avatar modal)
+------------------------------------------------------ */
+
+.custom-modal .ant-upload {
+  background: transparent !important;
+  border: none !important;
+}
