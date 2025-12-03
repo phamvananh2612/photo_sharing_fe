@@ -1,13 +1,13 @@
 import HeroSection from "./HeroSection";
 import FeatureSection from "./FeatureSection";
 import CommunityGallery from "./CommunityGallery";
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { getAllPhotos } from "../../services/PhotoService";
 import { message } from "antd";
 
 const PublicHome = () => {
   const [photos, setPhotos] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -25,19 +25,26 @@ const PublicHome = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#050013] text-slate-100">
-      <div className="max-w-[95%] mx-auto px-4 pb-16 pt-10">
-        <HeroSection />
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.6 }}
+    >
+      <div className="min-h-screen bg-[#050013] text-slate-100">
+        <div className="max-w-[95%] mx-auto px-4 pb-16 pt-10">
+          <HeroSection />
 
-        <div className="mt-16">
-          <FeatureSection />
-        </div>
+          <div className="mt-16">
+            <FeatureSection />
+          </div>
 
-        <div className="mt-16">
-          <CommunityGallery photos={photos} />
+          <div className="mt-16">
+            <CommunityGallery photos={photos} />
+          </div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

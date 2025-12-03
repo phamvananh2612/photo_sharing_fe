@@ -60,7 +60,7 @@ const Profile = () => {
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -20 }}
-        transition={{ duration: 0.25 }}
+        transition={{ duration: 0.6 }}
       >
         <div className="min-h-screen bg-gradient-to-b from-[#0b0214] via-[#140220] to-[#0b0214] py-10 px-4">
           <div className="max-w-[95%] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
