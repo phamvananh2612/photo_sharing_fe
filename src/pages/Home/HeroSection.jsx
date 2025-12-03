@@ -1,4 +1,5 @@
 import { Button } from "antd";
+import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   return (
@@ -27,19 +28,23 @@ const HeroSection = () => {
 
           {/* Buttons */}
           <div className="flex flex-wrap items-center justify-center gap-4">
-            <Button
-              type="primary"
-              className="!h-10 !rounded-full !px-6 !bg-purple-600 hover:!bg-purple-500 border-none shadow-[0_0_20px_rgba(168,85,247,0.6)]"
-            >
-              Đăng ký ngay
-            </Button>
+            <Link to="/register">
+              <Button
+                type="primary"
+                className="!h-10 !rounded-full !px-6 !bg-purple-600 hover:!bg-purple-500 border-none shadow-[0_0_20px_rgba(168,85,247,0.6)]"
+              >
+                Đăng ký ngay
+              </Button>
+            </Link>
 
-            <Button
-              ghost
-              className="!h-10 !rounded-full !px-6 !text-slate-100 !border-purple-400/60 hover:!bg-purple-600/20"
-            >
-              Đăng nhập
-            </Button>
+            <Link to="/login">
+              <Button
+                ghost
+                className="!h-10 !rounded-full !px-6 !text-slate-100 !border-purple-400/60 hover:!bg-purple-600/20"
+              >
+                Đăng nhập
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
