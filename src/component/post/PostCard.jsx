@@ -12,6 +12,7 @@ const PostCard = ({
   post,
   currentUserId,
   getUserName,
+  getUserAvatar,
   onDeletePost,
   onAddComment,
   onUpdateComment,
@@ -19,14 +20,11 @@ const PostCard = ({
   onUpdateCaption,
 }) => {
   const isOwner = currentUserId && currentUserId === post.user_id;
-  // mở modal update ảnh
   const [isEditCaptionOpen, setIsEditCaptionOpen] = useState(false);
   const [captionValue, setCaptionValue] = useState(post.caption || "");
   if (!post) {
     return null;
   }
-
-  // hàm xử lý cập nhật or xóa bài
 
   const handleOpenEditCaption = () => {
     setCaptionValue(post.caption || "");
@@ -66,10 +64,22 @@ const PostCard = ({
   const renderOwnerAvatar = () => {
     const displayName =
       (getUserName && getUserName(post.user_id)) || "Người dùng";
+    const avatarUrl = (getUserAvatar && getUserAvatar(post.user_id)) || null;
     const initial = displayName.charAt(0).toUpperCase();
+
+    if (avatarUrl) {
+      return (
+        <Avatar
+          src={avatarUrl}
+          size={40}
+          className="ring-2 ring-purple-500/60"
+        />
+      );
+    }
 
     return (
       <Avatar
+        size={40}
         style={{
           background:
             "linear-gradient(135deg, rgba(147,51,234,1) 0%, rgba(79,70,229,1) 100%)",
@@ -89,7 +99,6 @@ const PostCard = ({
       className="bg-[#180329]/80 border border-purple-800/40 rounded-2xl shadow-xl shadow-purple-900/30 text-white overflow-hidden"
       bodyStyle={{ padding: 0 }}
     >
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3">
         <div className="flex items-center gap-2">
           {renderOwnerAvatar()}
@@ -124,7 +133,6 @@ const PostCard = ({
         )}
       </div>
 
-      {/* ảnh */}
       <div className="bg-black">
         <img
           src={post.file_name}
@@ -133,7 +141,6 @@ const PostCard = ({
         />
       </div>
 
-      {/* Caption */}
       <div className="px-4 py-3">
         {post.caption && post.caption.trim() ? (
           <h2 className="!text-sm text-purple-100">{post.caption}</h2>
@@ -144,17 +151,16 @@ const PostCard = ({
         )}
       </div>
 
-      {/* Comment section tách riêng */}
       <CommentSection
         post={post}
         currentUserId={currentUserId}
         getUserName={getUserName}
+        getUserAvatar={getUserAvatar}
         onAddComment={onAddComment}
         onUpdateComment={onUpdateComment}
         onDeleteComment={onDeleteComment}
       />
 
-      {/* Modal sửa caption */}
       <Modal
         open={isEditCaptionOpen}
         onOk={handleSaveCaption}

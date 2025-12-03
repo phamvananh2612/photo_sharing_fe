@@ -42,27 +42,27 @@ const UserMenuDropdown = ({ handleLogout }) => {
             </Link>
           ),
         },
-        {
-          key: "2",
-          label: (
-            <Link
-              to="/profile/edit"
-              className="
-                flex items-center gap-2 
-                px-4 py-2 
-                text-sm 
-                !text-white 
-                hover:!bg-purple-700/40 
-                hover:!text-white
-                rounded-lg 
-                transition
-              "
-            >
-              <SettingOutlined className="text-purple-300" />
-              <span>Cập nhật hồ sơ</span>
-            </Link>
-          ),
-        },
+        // {
+        //   key: "2",
+        //   label: (
+        //     <Link
+        //       to="/profile/edit"
+        //       className="
+        //         flex items-center gap-2
+        //         px-4 py-2
+        //         text-sm
+        //         !text-white
+        //         hover:!bg-purple-700/40
+        //         hover:!text-white
+        //         rounded-lg
+        //         transition
+        //       "
+        //     >
+        //       <SettingOutlined className="text-purple-300" />
+        //       <span>Cập nhật hồ sơ</span>
+        //     </Link>
+        //   ),
+        // },
         {
           key: "3",
           label: (

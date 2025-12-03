@@ -2,9 +2,10 @@ import { useState } from "react";
 import { HiDotsHorizontal } from "react-icons/hi";
 import { IoIosSend } from "react-icons/io";
 import { EditOutlined, DeleteOutlined } from "@ant-design/icons";
-import { Button, Input, Popover, Divider } from "antd";
+import { Button, Input, Popover, Divider, Avatar } from "antd";
 import ActionMenu from "../common/ActionMenu";
 import "./styles.css";
+import { Link } from "react-router-dom";
 
 const { TextArea } = Input;
 
@@ -12,6 +13,7 @@ const CommentSection = ({
   post,
   currentUserId,
   getUserName,
+  getUserAvatar,
   onAddComment,
   onUpdateComment,
   onDeleteComment,
@@ -92,6 +94,12 @@ const CommentSection = ({
             {post.comments.map((cmt) => {
               const name =
                 (getUserName && getUserName(cmt.user_id)) || "Người dùng";
+
+              const avatarUrl =
+                (getUserAvatar && getUserAvatar(cmt.user_id)) || null;
+
+              const initial = name.charAt(0).toUpperCase();
+
               const editValue = editing[cmt._id] ?? "";
               const isOwner = currentUserId && currentUserId === cmt.user_id; // chỉ show 3 chấm nếu là cmt của mình
 
@@ -101,13 +109,36 @@ const CommentSection = ({
                   className="bg-white/5 border border-purple-800/40 rounded-xl px-3 py-2 relative"
                 >
                   <div className="flex justify-between items-start gap-2">
-                    <div className="flex items-center justify-between w-full">
-                      <h4 className="!text-xs font-semibold text-purple-100">
-                        {name}
-                      </h4>
-                      <h4 className="!text-[11px] text-purple-300/80">
-                        {formatTime(cmt.date_time)}
-                      </h4>
+                    <div className="flex items-start gap-2">
+                      <Link to={`/profile/${cmt.user_id}`}>
+                        {avatarUrl ? (
+                          <Avatar
+                            src={avatarUrl}
+                            size={40}
+                            className="ring-2 ring-purple-500/60"
+                          />
+                        ) : (
+                          <Avatar
+                            size={40}
+                            className="bg-gradient-to-br from-purple-600 to-indigo-700 text-white ring-2 ring-purple-500/60"
+                          >
+                            {initial}
+                          </Avatar>
+                        )}
+                      </Link>
+
+                      <div className="flex flex-col">
+                        <Link to={`/profile/${cmt.user_id}`}>
+                          {" "}
+                          <h4 className="!text-sm font-semibold text-purple-100">
+                            {name}
+                          </h4>
+                        </Link>
+
+                        <h4 className="!text-[14px] text-purple-300/80 mt-0.5">
+                          {cmt.comment}
+                        </h4>
+                      </div>
                     </div>
 
                     {isOwner && (
@@ -117,18 +148,13 @@ const CommentSection = ({
                         placement="bottomRight"
                         overlayClassName="custom-popover"
                       >
-                        <button className="p-1 rounded-full hover:bg-white/10 transition absolute bottom-2 right-2">
+                        <button className="p-1 rounded-full hover:bg-white/10 transition">
                           <HiDotsHorizontal className="text-purple-200 text-lg" />
                         </button>
                       </Popover>
                     )}
                   </div>
 
-                  <div className="mt-1">
-                    <h4 className="!text-sm text-purple-50">{cmt.comment}</h4>
-                  </div>
-
-                  {/* Form sửa comment chỉ hiện khi chọn "Chỉnh sửa" */}
                   {editingId === cmt._id && (
                     <div className="mt-2 flex gap-2">
                       <TextArea

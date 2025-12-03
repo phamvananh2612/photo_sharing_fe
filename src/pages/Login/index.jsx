@@ -2,9 +2,11 @@ import { Button, Form, Input, message } from "antd";
 import { checkUser } from "../../services/UserService";
 import { useNavigate, Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useAuth } from "../../contexts/AuthContext";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { setIsLogin, setUser } = useAuth();
 
   const handleSubmit = async (e) => {
     console.log(e);
@@ -13,17 +15,17 @@ const Login = () => {
       const user = response.data.user;
 
       if (response.ok) {
-        localStorage.setItem("isLogin", "true");
-        localStorage.setItem("user", JSON.stringify(user));
+        setIsLogin(true);
+        setUser(user);
         message.success(response.data.message);
-        setTimeout(() => navigate("/"), 1500);
+        setTimeout(() => navigate("/feed"), 1500);
       } else {
-        localStorage.setItem("isLogin", "false");
+        setIsLogin(false);
         message.error(response.data.message);
       }
     } catch (error) {
       console.log("Đăng nhập không thành công");
-      localStorage.setItem("isLogin", "false");
+      setIsLogin(false);
       message.error("Đăng nhập không thành công");
     }
   };

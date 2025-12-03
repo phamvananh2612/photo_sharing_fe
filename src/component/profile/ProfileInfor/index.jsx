@@ -3,7 +3,8 @@ import { CameraOutlined, EditOutlined } from "@ant-design/icons";
 import { useState } from "react";
 import EditTextFieldModal from "../Update/EditTextFieldModal";
 import EditAvatarModal from "../Update/EditAvatarModal";
-const ProfileInfor = ({ user, onUserUpdated }) => {
+
+const ProfileInfor = ({ user, onUserUpdated, isOwner }) => {
   const [editConfig, setEditConfig] = useState({
     open: false,
     field: "",
@@ -12,6 +13,7 @@ const ProfileInfor = ({ user, onUserUpdated }) => {
     isTextarea: false,
   });
   const [openAvatarModal, setOpenAvatarModal] = useState(false);
+
   // Chuẩn hóa dữ liệu
   const firstName = user.first_name || "";
   const lastName = user.last_name || "";
@@ -36,6 +38,7 @@ const ProfileInfor = ({ user, onUserUpdated }) => {
   ];
 
   const openEditField = ({ field, label, value, isTextarea = false }) => {
+    if (!isOwner) return;
     setEditConfig({
       open: true,
       field,
@@ -44,9 +47,11 @@ const ProfileInfor = ({ user, onUserUpdated }) => {
       isTextarea,
     });
   };
+
   const closeEditField = () => {
     setEditConfig((prev) => ({ ...prev, open: false }));
   };
+
   const handleUserUpdated = (newUser) => {
     onUserUpdated && onUserUpdated(newUser);
   };
@@ -72,41 +77,47 @@ const ProfileInfor = ({ user, onUserUpdated }) => {
               </Avatar>
             )}
 
-            <span
-              className="absolute bottom-2 right-2 bg-purple-700/80 p-2 rounded-full text-white text-xs cursor-pointer hover:bg-purple-500 transition"
-              onClick={() => setOpenAvatarModal(true)}
-            >
-              <CameraOutlined />
-            </span>
+            {isOwner && (
+              <span
+                className="absolute bottom-2 right-2 bg-purple-700/80 p-2 rounded-full text-white text-xs cursor-pointer hover:bg-purple-500 transition"
+                onClick={() => setOpenAvatarModal(true)}
+              >
+                <CameraOutlined />
+              </span>
+            )}
           </div>
 
           <h2 className="text-2xl font-semibold tracking-wide flex items-center">
             {loginName || "Chưa có tên"}
-            <EditOutlined
-              className="text-purple-300/70 hover:text-white cursor-pointer"
-              onClick={() =>
-                openEditField({
-                  field: "login_name",
-                  label: "Tên đăng nhập",
-                  value: loginName,
-                })
-              }
-            />
+            {isOwner && (
+              <EditOutlined
+                className="text-purple-300/70 hover:text-white cursor-pointer"
+                onClick={() =>
+                  openEditField({
+                    field: "login_name",
+                    label: "Tên đăng nhập",
+                    value: loginName,
+                  })
+                }
+              />
+            )}
           </h2>
 
           <p className="text-gray-300 text-center text-sm min-h-[40px] flex items-center ">
             {description}
-            <EditOutlined
-              className="text-purple-300/70 hover:text-white cursor-pointer"
-              onClick={() =>
-                openEditField({
-                  field: "description",
-                  label: "Mô tả",
-                  value: description,
-                  isTextarea: true,
-                })
-              }
-            />
+            {isOwner && (
+              <EditOutlined
+                className="text-purple-300/70 hover:text-white cursor-pointer"
+                onClick={() =>
+                  openEditField({
+                    field: "description",
+                    label: "Mô tả",
+                    value: description,
+                    isTextarea: true,
+                  })
+                }
+              />
+            )}
           </p>
 
           <div className="w-full space-y-1 mt-4">
@@ -122,43 +133,48 @@ const ProfileInfor = ({ user, onUserUpdated }) => {
                   {field.value}
                 </span>
 
-                <span
-                  className="absolute top-3 right-3 text-purple-300/70 hover:text-white cursor-pointer text-xs"
-                  onClick={() =>
-                    openEditField({
-                      field: field.key,
-                      label: field.label,
-                      value: field.value,
-                    })
-                  }
-                >
-                  <EditOutlined />
-                </span>
+                {isOwner && (
+                  <span
+                    className="absolute top-3 right-3 text-purple-300/70 hover:text-white cursor-pointer text-xs"
+                    onClick={() =>
+                      openEditField({
+                        field: field.key,
+                        label: field.label,
+                        value: field.value,
+                      })
+                    }
+                  >
+                    <EditOutlined />
+                  </span>
+                )}
               </div>
             ))}
           </div>
         </div>
       </Card>
 
-      {/* Modal dùng chung cho mọi field text */}
-      <EditTextFieldModal
-        open={editConfig.open}
-        onClose={closeEditField}
-        userId={user._id}
-        field={editConfig.field}
-        label={editConfig.label || ""}
-        initialValue={editConfig.value}
-        isTextarea={editConfig.isTextarea}
-        onUpdated={handleUserUpdated}
-      />
-      {/* Modal dùng cho avt */}
-      <EditAvatarModal
-        open={openAvatarModal}
-        onClose={() => setOpenAvatarModal(false)}
-        userId={user._id}
-        currentAvatar={user.avatar}
-        onUpdated={onUserUpdated}
-      />
+      {isOwner && (
+        <EditTextFieldModal
+          open={editConfig.open}
+          onClose={closeEditField}
+          userId={user._id}
+          field={editConfig.field}
+          label={editConfig.label || ""}
+          initialValue={editConfig.value}
+          isTextarea={editConfig.isTextarea}
+          onUpdated={handleUserUpdated}
+        />
+      )}
+
+      {isOwner && (
+        <EditAvatarModal
+          open={openAvatarModal}
+          onClose={() => setOpenAvatarModal(false)}
+          userId={user._id}
+          currentAvatar={user.avatar}
+          onUpdated={onUserUpdated}
+        />
+      )}
     </div>
   );
 };

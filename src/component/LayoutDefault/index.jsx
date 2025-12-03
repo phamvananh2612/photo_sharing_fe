@@ -8,10 +8,8 @@ const LayoutDefault = () => {
   return (
     <Layout className="min-h-screen bg-[#0b0214] text-white w-full">
       {/* header */}
-      <Header className="w-full bg-[#0b0214] flex items-center shadow-md fixed z-10">
-        <div className="w-full max-w-9xl mx-auto">
-          <HeaderCustom />
-        </div>
+      <Header className="w-full bg-[#0b0214] flex items-center shadow-md fixed z-20 px-4">
+        <HeaderCustom />
       </Header>
 
       {/* content */}

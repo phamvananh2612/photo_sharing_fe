@@ -4,6 +4,7 @@ import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
 import { Outlet } from "react-router-dom";
 import UserList from "../../component/user/UserList";
 import { uploadPhoto } from "../../services/PhotoService";
+import { useAuth } from "../../contexts/AuthContext";
 
 const { TextArea } = Input;
 
@@ -15,8 +16,11 @@ const Posts = () => {
   const [currentUser, setCurrentUser] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
+  const { user } = useAuth();
+
   useEffect(() => {
-    const stored = localStorage.getItem("user");
+    if (!user) return;
+    const stored = user;
     if (stored) {
       try {
         setCurrentUser(JSON.parse(stored));

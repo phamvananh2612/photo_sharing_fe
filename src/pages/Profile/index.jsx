@@ -3,24 +3,26 @@ import { getDetailUser } from "../../services/UserService";
 import ProfileInfor from "../../component/profile/ProfileInfor";
 import ProfileTabs from "../../component/profile/ProfileTabs";
 import { motion } from "framer-motion";
+import { useAuth } from "../../contexts/AuthContext";
+import { useParams } from "react-router-dom";
 
 const Profile = () => {
+  const { id: paramId } = useParams();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { user: stored } = useAuth();
 
   useEffect(() => {
-    const stored = localStorage.getItem("user");
-    if (!stored) {
+    const viewId = paramId || stored?._id;
+
+    if (!viewId) {
       setLoading(false);
       return;
     }
 
-    const currentUser = JSON.parse(stored);
-    const id = currentUser._id;
-
     const fetchUser = async () => {
       try {
-        const res = await getDetailUser(id);
+        const res = await getDetailUser(viewId);
         setUser(res);
       } catch (err) {
         console.error("Lỗi lấy user:", err);
@@ -30,7 +32,7 @@ const Profile = () => {
     };
 
     fetchUser();
-  }, []);
+  }, [paramId, stored]);
 
   if (loading) {
     return (
@@ -50,6 +52,8 @@ const Profile = () => {
     );
   }
 
+  const isOwner = !paramId || paramId === stored?._id;
+
   return (
     <>
       <motion.div
@@ -61,7 +65,11 @@ const Profile = () => {
         <div className="min-h-screen bg-gradient-to-b from-[#0b0214] via-[#140220] to-[#0b0214] py-10 px-4">
           <div className="max-w-[95%] mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* profile card */}
-            <ProfileInfor user={user} onUserUpdated={setUser} />
+            <ProfileInfor
+              user={user}
+              onUserUpdated={isOwner ? setUser : undefined}
+              isOwner={isOwner}
+            />
             {/* profile Tab */}
             <ProfileTabs user_id={user._id} />
           </div>

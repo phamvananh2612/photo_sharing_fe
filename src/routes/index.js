@@ -1,32 +1,40 @@
 import LayoutDefault from "../component/LayoutDefault";
-import Home from "../pages/Home";
 import Login from "../pages/Login";
 import Register from "../pages/Register";
-import PrivateRoute from "../component/PrivateRoute";
-import UserDetail from "../component/user/UserDetail";
+import PrivateRoute from "./PrivateRoute";
+import GuestRoute from "./GuestRoute";
+
 import UserPhotos from "../component/user/UserPhotos";
 import Profile from "../pages/Profile";
 import Posts from "../pages/Posts";
+import Feed from "../pages/Feed";
+import HomePublic from "../pages/Home";
+
 const routes = [
   {
     path: "/",
     element: <LayoutDefault />,
     children: [
-      { index: true, element: <Home /> },
-      { path: "login", element: <Login /> },
-      { path: "register", element: <Register /> },
-      { path: "profile", element: <Profile /> },
+      {
+        element: <GuestRoute />,
+        children: [
+          { index: true, element: <HomePublic /> },
+          { path: "login", element: <Login /> },
+          { path: "register", element: <Register /> },
+        ],
+      },
 
       {
         element: <PrivateRoute />,
         children: [
+          { path: "feed", element: <Feed /> },
+          { path: "profile", element: <Profile /> },
+          { path: "profile/:id", element: <Profile /> },
+
           {
             path: "posts",
             element: <Posts />,
-            children: [
-              { path: "users/:id", element: <UserDetail /> },
-              { path: "photos/:userId", element: <UserPhotos /> },
-            ],
+            children: [, { path: "photos/:userId", element: <UserPhotos /> }],
           },
         ],
       },

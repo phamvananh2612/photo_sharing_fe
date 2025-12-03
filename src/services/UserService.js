@@ -48,3 +48,14 @@ export const updateUser = async (id, options = {}) => {
 
   return await patch(`api/users/${id}`, formData);
 };
+
+// Kiểm tra session đăng nhập
+// GET /api/auth/me
+export const verifySession = async () => {
+  try {
+    const result = await get("api/auth/me");
+    return result; // { valid: true, user: {...} }
+  } catch (error) {
+    return { valid: false };
+  }
+};

@@ -46,7 +46,7 @@ const UserList = () => {
           >
             {/* Avatar + info */}
             <Link
-              to={`/posts/users/${user._id}`}
+              to={`/profile/${user._id}`}
               className="flex items-center gap-4"
             >
               {/* Avatar */}
@@ -79,7 +79,7 @@ const UserList = () => {
             </Link>
 
             <Link
-              to={`/posts/users/${user._id}`}
+              to={`/profile/${user._id}`}
               className="text-sm font-semibold text-purple-300 hover:text-purple-100 transition"
             >
               Xem

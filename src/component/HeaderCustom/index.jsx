@@ -1,29 +1,23 @@
-import { useState, useEffect } from "react";
 import { useNavigate, NavLink, Link } from "react-router-dom";
 import { logoutUser } from "../../services/UserService";
 import { Dropdown, Avatar } from "antd";
 import UserMenuDropdown from "./UserMenuDropdown";
+import { useAuth } from "../../contexts/AuthContext";
 
 const HeaderCustom = () => {
-  const [user, setUser] = useState(null);
-  const isLogin = localStorage.getItem("isLogin") === "true";
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    if (isLogin && storedUser) {
-      setUser(JSON.parse(storedUser));
-    } else {
-      setUser(null);
-    }
-  }, [isLogin]);
+  const { isLogin, user, setIsLogin, setUser } = useAuth();
 
   const handleLogout = async () => {
-    localStorage.setItem("isLogin", "false");
-    localStorage.removeItem("user");
-    setUser(null);
-    await logoutUser();
-    navigate("/login");
+    try {
+      await logoutUser();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLogin(false);
+      setUser(null);
+      navigate("/login");
+    }
   };
 
   const getInitial = (fullName) => {
@@ -33,10 +27,12 @@ const HeaderCustom = () => {
   };
 
   return (
-    <div className="w-full bg-gradient-to-r from-[#0b0214] via-[#15021e] to-[#0b0214] text-white shadow-lg shadow-[0_2px_4px_-1px_purple-900/30]">
-      <div className="max-w-[95%] mx-auto h-16 flex justify-between items-center">
-        {/* Logo */}
-        <Link to="/" className="flex items-center gap-3 group">
+    <div className="w-full bg-gradient-to-r from-[#0b0214] via-[#15021e] to-[#0b0214] text-white shadow-[0_2px_4px_-1px_purple-900/30]">
+      <div className="h-16 flex justify-between items-center">
+        <Link
+          to={isLogin ? "/feed" : "/"}
+          className="flex items-center gap-3 group"
+        >
           <div className="relative">
             <img
               src="https://i.pinimg.com/1200x/8d/10/18/8d1018c09f1d87a58269cb8a4c060632.jpg"
@@ -49,7 +45,6 @@ const HeaderCustom = () => {
           </span>
         </Link>
 
-        {/* Menu phải */}
         <nav className="flex items-center gap-6">
           {!isLogin || !user ? (
             <>
@@ -75,7 +70,6 @@ const HeaderCustom = () => {
                 </span>
               </span>
 
-              {/* Dropdown avatar */}
               <Dropdown
                 overlay={<UserMenuDropdown handleLogout={handleLogout} />}
                 trigger={["click"]}
@@ -101,7 +95,6 @@ const HeaderCustom = () => {
         </nav>
       </div>
 
-      {/* gạch dưới gradient */}
       <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-purple-300/60 to-transparent"></div>
     </div>
   );
