@@ -2,9 +2,17 @@ import CommentSection from "./CommentSection";
 import { formatTime } from "../../utils/formatTime";
 import { useState } from "react";
 import { Card, Avatar, Button, Input, Popover, Modal } from "antd";
-import { MoreOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {
+  MoreOutlined,
+  EditOutlined,
+  DeleteOutlined,
+  HeartOutlined,
+  HeartFilled,
+} from "@ant-design/icons";
 import ActionMenu from "../common/ActionMenu";
 import "./styles.css";
+import { toggleLikePhoto } from "../../services/PhotoService";
+import { message } from "antd";
 
 const { TextArea } = Input;
 
@@ -22,6 +30,16 @@ const PostCard = ({
   const isOwner = currentUserId && currentUserId === post.user_id;
   const [isEditCaptionOpen, setIsEditCaptionOpen] = useState(false);
   const [captionValue, setCaptionValue] = useState(post.caption || "");
+  const [isLiking, setIsLiking] = useState(false);
+  const [likesCount, setLikesCount] = useState(
+    post.likesCount ?? post.likes?.length ?? 0
+  );
+
+  const [isLiked, setIsLiked] = useState(() => {
+    if (!currentUserId || !post.likes) return false;
+    return post.likes.includes(currentUserId);
+  });
+
   if (!post) {
     return null;
   }
@@ -93,14 +111,34 @@ const PostCard = ({
   const ownerName =
     (getUserName && getUserName(post.user_id)) || "Người dùng ẩn danh";
 
+  const handleToggleLike = async () => {
+    if (!currentUserId) {
+      message.warning("Bạn cần đăng nhập để thích ảnh");
+      return;
+    }
+
+    try {
+      setIsLiking(true);
+      const res = await toggleLikePhoto(post._id);
+
+      setLikesCount((prev) => (isLiked ? Math.max(prev - 1, 0) : prev + 1));
+      setIsLiked((prev) => !prev);
+    } catch (error) {
+      console.log("Lỗi khi like ảnh: ", error);
+      message.error("Có lỗi khi thực hiện thao tác thích ảnh");
+    } finally {
+      setIsLiking(false);
+    }
+  };
+
   return (
     <Card
-      bordered={false}
+      // bordered={false}
       className="bg-[#180329]/80 border border-purple-800/40 rounded-2xl shadow-xl shadow-purple-900/30 text-white overflow-hidden"
       bodyStyle={{ padding: 0 }}
     >
       <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
           {renderOwnerAvatar()}
           <div className="flex flex-col gap-1">
             <h2 className="!text-white !text-sm font-semibold">{ownerName}</h2>
@@ -121,11 +159,11 @@ const PostCard = ({
             <Button
               type="text"
               className="
-        !p-1.5
-        hover:bg-white/5
-        rounded-full
-        flex items-center justify-center
-      "
+                !p-1.5
+                hover:bg-white/5
+                rounded-full
+                flex items-center justify-center
+              "
             >
               <MoreOutlined className="text-purple-200 text-lg" />
             </Button>
@@ -133,12 +171,28 @@ const PostCard = ({
         )}
       </div>
 
-      <div className="bg-black">
+      <div className="bg-black relative">
         <img
           src={post.file_name}
           alt="post"
           className="w-full max-h-[550px] object-contain bg-black"
         />
+
+        <Button
+          type="text"
+          onClick={handleToggleLike}
+          loading={isLiking}
+          className="!text-purple-200 hover:!bg-black/40 flex items-center gap-1 !p-2 rounded-full absolute bottom-3 right-3 z-10 bg-black/40"
+          icon={
+            isLiked ? (
+              <HeartFilled size={25} style={{ color: "#ef4444" }} />
+            ) : (
+              <HeartOutlined size={25} />
+            )
+          }
+        >
+          {likesCount}
+        </Button>
       </div>
 
       <div className="px-4 py-3">

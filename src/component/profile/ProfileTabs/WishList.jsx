@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 import { message, Image } from "antd";
-import { getPhotos } from "../../../services/PhotoService";
+import { getWishList } from "../../../services/PhotoService";
 
-const Gallary = ({ user_id }) => {
+const WishList = ({ user_id }) => {
   const [photos, setPhotos] = useState([]);
 
   useEffect(() => {
     const fetchApi = async () => {
       try {
-        const result = await getPhotos(user_id);
+        const result = await getWishList(user_id);
         setPhotos(result.photos || []);
       } catch (e) {
         console.log("Lỗi khi lấy danh sách ảnh: ", e);
@@ -17,11 +17,10 @@ const Gallary = ({ user_id }) => {
     };
     fetchApi();
   }, [user_id]);
-
   return (
     <div className="w-full">
       {photos.length === 0 ? (
-        <p className="text-gray-400 text-sm">Chưa có bài đăng.</p>
+        <p className="text-gray-400 text-sm">Chưa có bài đăng</p>
       ) : (
         <Image.PreviewGroup>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -51,4 +50,4 @@ const Gallary = ({ user_id }) => {
   );
 };
 
-export default Gallary;
+export default WishList;

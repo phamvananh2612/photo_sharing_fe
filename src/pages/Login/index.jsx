@@ -62,7 +62,7 @@ const Login = () => {
           </div>
 
           {/* cột phải */}
-          <div className="w-full md:w-1/2 flex items-center justify-center px-8 md:px-16">
+          <div className="w-full md:w-1/2 flex items-center justify-center px-8 md:px-16 min-h-[90vh] md:min-h-0">
             <div className="w-full max-w-sm">
               <h2 className="text-4xl font-bold mb-6">Chào mừng trở lại!</h2>
 

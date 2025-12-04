@@ -52,13 +52,13 @@ const HeaderCustom = () => {
                 to="/login"
                 className="text-sm font-medium text-purple-100 hover:text-purple-300 transition"
               >
-                Login
+                Đăng nhập
               </NavLink>
               <NavLink
                 to="/register"
                 className="text-sm font-medium text-purple-100 hover:text-purple-300 transition"
               >
-                Register
+                Đăng kí
               </NavLink>
             </>
           ) : (

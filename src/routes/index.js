@@ -34,7 +34,7 @@ const routes = [
           {
             path: "posts",
             element: <Posts />,
-            children: [, { path: "photos/:userId", element: <UserPhotos /> }],
+            children: [{ path: "photos/:userId", element: <UserPhotos /> }],
           },
         ],
       },

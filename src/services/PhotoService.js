@@ -35,7 +35,7 @@ export const updateComment = async (photoId, cmtId, cmt) => {
   return result;
 };
 
-// Tạo mới 1 ảnh
+// hàm xử lý lấy APi tạo mới 1 ảnh
 // POST /api/photos
 export const uploadPhoto = async (file, caption) => {
   const formData = new FormData();
@@ -48,15 +48,26 @@ export const uploadPhoto = async (file, caption) => {
   return result;
 };
 
-// APi lấy ra toàn bộ danh sách ảnh
+// hàm xử lý  lấy ra toàn bộ danh sách ảnh
 // GET /api/photos
 export const getAllPhotos = async () => {
   const result = await get(`api/photos`);
   return result;
 };
 
-// API cập nhật caption của 1 ảnh
+// hàm xử lý API cập nhật caption của 1 ảnh
 export const updateCaption = async (photo_id, newCaption) => {
   const result = await patch(`api/photos/${photo_id}`, newCaption);
+  return result;
+};
+// hàm xử lý APi cập nhật like/unlike khi click vào nút tym
+export const toggleLikePhoto = async (photoId) => {
+  const result = await patch(`api/photos/${photoId}/like`);
+  return result; // result sẽ chứa { message, likesCount, isLiked }
+};
+
+// hàm xử lý API lấy ra danh sách ảnh yêu thích
+export const getWishList = async (userId) => {
+  const result = await get(`api/photos/${userId}/favorite`);
   return result;
 };

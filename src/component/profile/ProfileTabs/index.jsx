@@ -2,6 +2,7 @@ import { Tabs } from "antd";
 import "./styles.css";
 
 import Gallary from "./Gallary";
+import WishList from "./WishList";
 const ProfileTabs = ({ user_id }) => {
   const items = [
     {
@@ -12,12 +13,7 @@ const ProfileTabs = ({ user_id }) => {
     {
       key: "2",
       label: "Yêu thích",
-      children: "Content of Tab Pane 2",
-    },
-    {
-      key: "3",
-      label: "Đã lưu",
-      children: "Content of Tab Pane 3",
+      children: <WishList user_id={user_id} />,
     },
   ];
 

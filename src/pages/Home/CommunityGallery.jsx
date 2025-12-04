@@ -1,7 +1,9 @@
 import { FiUsers } from "react-icons/fi";
+import { Image } from "antd";
 
 const CommunityGallery = ({ photos }) => {
-  if (!photos) return;
+  if (!photos) return null;
+
   return (
     <section>
       {/* Header */}
@@ -19,18 +21,25 @@ const CommunityGallery = ({ photos }) => {
 
       {/* Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-        {photos.slice(0, 12).map((photo, index) => (
-          <div
-            key={index}
-            className="overflow-hidden rounded-2xl bg-black/40 border border-purple-500/20 hover:border-purple-400/60 transition"
-          >
-            <img
-              src={photo.file_name}
-              alt={`public-${index}`}
-              className="h-32 w-full object-cover sm:h-40 md:h-44 hover:scale-105 transition-transform duration-300"
-            />
-          </div>
-        ))}
+        <Image.PreviewGroup>
+          {photos.slice(0, 12).map((photo, index) => (
+            <div
+              key={index}
+              className="overflow-hidden rounded-2xl bg-black/40 border border-purple-500/20 hover:border-purple-400/60 transition group"
+            >
+              <Image
+                src={photo.file_name}
+                alt={`public-${index}`}
+                preview={true}
+                wrapperClassName="w-full h-full"
+                className="!w-full !h-52 object-cover transition-transform duration-300 group-hover:scale-105"
+                style={{
+                  objectFit: "cover",
+                }}
+              />
+            </div>
+          ))}
+        </Image.PreviewGroup>
       </div>
     </section>
   );
