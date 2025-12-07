@@ -6,29 +6,20 @@ import { Button, Input, Popover, Divider, Avatar } from "antd";
 import ActionMenu from "../common/ActionMenu";
 import "./styles.css";
 import { Link } from "react-router-dom";
+import { formatTime } from "../../utils/formatTime";
 
 const { TextArea } = Input;
 
 const CommentSection = ({
   post,
   currentUserId,
-  getUserName,
-  getUserAvatar,
   onAddComment,
   onUpdateComment,
   onDeleteComment,
 }) => {
   const [newComment, setNewComment] = useState("");
-  const [editing, setEditing] = useState({}); // { [cmtId]: string }
-  const [editingId, setEditingId] = useState(null); // id comment đang mở form sửa
-
-  const formatTime = (dateStr) => {
-    try {
-      return new Date(dateStr).toLocaleString();
-    } catch {
-      return "";
-    }
-  };
+  const [editing, setEditing] = useState({});
+  const [editingId, setEditingId] = useState(null);
 
   const handleSubmitComment = () => {
     if (!newComment.trim()) return;
@@ -44,7 +35,7 @@ const CommentSection = ({
     const value = editing[cmtId];
     if (!value?.trim()) return;
     onUpdateComment(post._id, cmtId, value);
-    setEditingId(null); // đóng form sửa sau khi cập nhật
+    setEditingId(null);
   };
 
   const handleDeleteCommentClick = (cmtId) => {
@@ -55,7 +46,7 @@ const CommentSection = ({
     setEditingId(cmt._id);
     setEditing((prev) => ({
       ...prev,
-      [cmt._id]: cmt.comment, // fill sẵn nội dung cũ
+      [cmt._id]: cmt.comment,
     }));
   };
 
@@ -92,68 +83,70 @@ const CommentSection = ({
         {post.comments && post.comments.length > 0 ? (
           <div className="mt-2 max-h-52 overflow-y-auto space-y-3 pr-1">
             {post.comments.map((cmt) => {
-              const name =
-                (getUserName && getUserName(cmt.user_id)) || "Người dùng";
-
-              const avatarUrl =
-                (getUserAvatar && getUserAvatar(cmt.user_id)) || null;
-
+              // Dùng luôn data từ API
+              const name = cmt.login_name || "Người dùng";
+              const avatarUrl = cmt.avatar || null;
               const initial = name.charAt(0).toUpperCase();
 
               const editValue = editing[cmt._id] ?? "";
-              const isOwner = currentUserId && currentUserId === cmt.user_id; // chỉ show 3 chấm nếu là cmt của mình
+              const isOwner =
+                currentUserId &&
+                cmt.user_id &&
+                currentUserId.toString() === cmt.user_id.toString();
 
               return (
                 <div
                   key={cmt._id}
-                  className="bg-white/5 border border-purple-800/40 rounded-xl px-3 py-2 relative"
+                  className="bg-white/5 border border-purple-800/40 rounded-xl px-3 py-2 pr-10 relative"
                 >
-                  <div className="flex justify-between items-start gap-2">
-                    <div className="flex items-start gap-2">
+                  {/* Avatar + Tên + Comment + Time */}
+                  <div className="flex items-start gap-2">
+                    <Link to={`/profile/${cmt.user_id}`}>
+                      {avatarUrl ? (
+                        <Avatar
+                          src={avatarUrl}
+                          size={40}
+                          className="ring-2 ring-purple-500/60"
+                        />
+                      ) : (
+                        <Avatar
+                          size={40}
+                          className="bg-gradient-to-br from-purple-600 to-indigo-700 text-white ring-2 ring-purple-500/60"
+                        >
+                          {initial}
+                        </Avatar>
+                      )}
+                    </Link>
+
+                    <div className="flex flex-col flex-1">
                       <Link to={`/profile/${cmt.user_id}`}>
-                        {avatarUrl ? (
-                          <Avatar
-                            src={avatarUrl}
-                            size={40}
-                            className="ring-2 ring-purple-500/60"
-                          />
-                        ) : (
-                          <Avatar
-                            size={40}
-                            className="bg-gradient-to-br from-purple-600 to-indigo-700 text-white ring-2 ring-purple-500/60"
-                          >
-                            {initial}
-                          </Avatar>
-                        )}
+                        <h4 className="!text-sm font-semibold text-purple-100">
+                          {name}
+                        </h4>
                       </Link>
 
-                      <div className="flex flex-col">
-                        <Link to={`/profile/${cmt.user_id}`}>
-                          {" "}
-                          <h4 className="!text-sm font-semibold text-purple-100">
-                            {name}
-                          </h4>
-                        </Link>
+                      <p className="!text-[14px] text-purple-300/80 mt-0.5">
+                        {cmt.comment}
+                      </p>
 
-                        <h4 className="!text-[14px] text-purple-300/80 mt-0.5">
-                          {cmt.comment}
-                        </h4>
-                      </div>
+                      <span className="text-xs text-purple-400/70 mt-1 absolute top-1 right-2">
+                        {formatTime(cmt.date_time)}
+                      </span>
                     </div>
-
-                    {isOwner && (
-                      <Popover
-                        content={renderPopoverContent(cmt)}
-                        trigger="click"
-                        placement="bottomRight"
-                        overlayClassName="custom-popover"
-                      >
-                        <button className="p-1 rounded-full hover:bg-white/10 transition">
-                          <HiDotsHorizontal className="text-purple-200 text-lg" />
-                        </button>
-                      </Popover>
-                    )}
                   </div>
+
+                  {isOwner && (
+                    <Popover
+                      content={renderPopoverContent(cmt)}
+                      trigger="click"
+                      placement="bottomRight"
+                      overlayClassName="custom-popover"
+                    >
+                      <button className="absolute bottom-1 right-2 p-1 rounded-full hover:bg-white/10 transition">
+                        <HiDotsHorizontal className="text-purple-200 text-lg" />
+                      </button>
+                    </Popover>
+                  )}
 
                   {editingId === cmt._id && (
                     <div className="mt-2 flex gap-2">

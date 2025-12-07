@@ -2,19 +2,10 @@ import { useState, useEffect } from "react";
 import { Modal, Button, Upload, Input, message } from "antd";
 import { PlusOutlined, UploadOutlined } from "@ant-design/icons";
 import UserList from "../../component/user/UserList";
-import { getAllUser } from "../../services/UserService";
 import { motion } from "framer-motion";
-import {
-  uploadPhoto,
-  getAllPhotos,
-  createComment,
-  deleteComment,
-  updateComment,
-  deletePhoto,
-  updateCaption,
-} from "../../services/PhotoService";
 import PostCard from "../../component/post/PostCard";
 import { useAuth } from "../../contexts/AuthContext";
+import { usePhotoContext } from "../../contexts/PhotoContext";
 
 const { TextArea } = Input;
 
@@ -25,38 +16,24 @@ const Feed = () => {
   const [previewUrl, setPreviewUrl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
-  const [posts, setPosts] = useState([]);
-  const [users, setUsers] = useState([]);
+  const {
+    photos,
+    fetchAllPhotos,
+    uploadPhoto,
+    deletePhoto,
+    addComment,
+    updateComment,
+    deleteComment,
+    updateCaption,
+  } = usePhotoContext();
 
   // Load user hiện tại
   const { user: currentUser } = useAuth();
 
-  // Load danh sách người dùng
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const res = await getAllUser();
-        setUsers(res.users || []);
-      } catch (err) {
-        console.error(err);
-      }
-    };
-    fetchUsers();
-  }, []);
-
   // Load tất cả bài đăng
   useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        const res = await getAllPhotos();
-        setPosts(res.photos || []);
-      } catch (err) {
-        console.error(err);
-        message.error("Lỗi khi tải danh sách bài đăng");
-      }
-    };
-    fetchPosts();
-  }, []);
+    fetchAllPhotos();
+  }, [fetchAllPhotos]);
 
   const getInitial = () => {
     if (!currentUser) return "U";
@@ -68,26 +45,6 @@ const Feed = () => {
     return parts[parts.length - 1][0].toUpperCase();
   };
 
-  // hàm xác định tên của chủ bài viết
-  const getUserName = (userId) => {
-    if (!userId || !users.length) return null;
-    const u = users.find((user) => user._id === userId);
-    if (!u) return null;
-    if (u.login_name) return u.login_name;
-    const fullName = `${u.last_name || ""} ${u.first_name || ""}`.trim();
-    return fullName || "Người dùng";
-  };
-
-  // hàm xác định avatar của chủ bài viết
-  const getUserAvatar = (userId) => {
-    if (!userId || !users || !users.length) return null;
-
-    const u = users.find((user) => user._id === userId);
-    if (!u) return null;
-
-    return u.avatar || null;
-  };
-
   const handleUploadPhoto = async () => {
     if (!file) {
       message.warning("Vui lòng chọn ảnh.");
@@ -96,29 +53,11 @@ const Feed = () => {
 
     setIsUploading(true);
     try {
-      const { ok, data } = await uploadPhoto(file, caption);
-
-      if (ok) {
-        const newPost = data?.photo;
-
-        if (!newPost) {
-          message.warning(
-            "Đăng bài thành công nhưng không nhận được dữ liệu ảnh."
-          );
-        } else {
-          setPosts((prev) => [newPost, ...prev]);
-        }
-
-        setIsModalOpen(false);
-        setFile(null);
-        setCaption("");
-        setPreviewUrl("");
-      } else {
-        message.error(data.message || "Đăng bài thất bại.");
-      }
-    } catch (err) {
-      console.error(err);
-      message.error("Lỗi server.");
+      await uploadPhoto(file, caption);
+      setIsModalOpen(false);
+      setFile(null);
+      setCaption("");
+      setPreviewUrl("");
     } finally {
       setIsUploading(false);
     }
@@ -135,124 +74,6 @@ const Feed = () => {
     setFile(null);
     setPreviewUrl("");
     setCaption("");
-  };
-
-  // ====== HANDLER CHO POSTCARD ======
-
-  const handleDeletePost = async (postId) => {
-    try {
-      const res = await deletePhoto(postId);
-      message.success(res.message || "Xóa bài thành công");
-      setPosts((prev) => prev.filter((p) => p._id !== postId));
-    } catch (err) {
-      console.error(err);
-      message.error("Không xóa được bài");
-    }
-  };
-
-  const handleAddComment = async (postId, content) => {
-    if (!content?.trim()) {
-      message.warning("Vui lòng nhập nội dung bình luận");
-      return;
-    }
-
-    try {
-      const res = await createComment(postId, { comment: content });
-      const data = res?.data ?? res;
-      const updatedPost = data?.photo;
-
-      if (updatedPost) {
-        setPosts((prev) =>
-          prev.map((p) => (p._id === postId ? updatedPost : p))
-        );
-      } else {
-        console.warn("createComment không trả photo, fallback refetch");
-        const refetch = await getAllPhotos();
-        setPosts(refetch.photos || []);
-      }
-
-      message.success("Thêm bình luận thành công");
-    } catch (err) {
-      console.error(err);
-      message.error("Lỗi khi thêm bình luận");
-    }
-  };
-
-  const handleUpdateComment = async (postId, cmtId, newContent) => {
-    if (!newContent?.trim()) {
-      message.warning("Nội dung bình luận không được trống");
-      return;
-    }
-
-    try {
-      const res = await updateComment(postId, cmtId, { commentUp: newContent });
-      const data = res?.data ?? res;
-      const updatedPhoto = data?.photo;
-      const updatedComment = data?.comment;
-
-      setPosts((prev) =>
-        prev.map((p) => {
-          if (p._id !== postId) return p;
-          if (updatedPhoto) return updatedPhoto;
-          const safeComments = Array.isArray(p.comments) ? p.comments : [];
-          return {
-            ...p,
-            comments: safeComments.map((c) => {
-              if (c._id !== cmtId) return c;
-              if (updatedComment) return updatedComment; // ưu tiên BE
-              return { ...c, comment: newContent }; // fallback FE
-            }),
-          };
-        })
-      );
-
-      message.success("Cập nhật bình luận thành công");
-    } catch (err) {
-      console.error(err);
-      message.error("Lỗi khi cập nhật bình luận");
-    }
-  };
-
-  const handleDeleteComment = async (postId, cmtId) => {
-    try {
-      const res = await deleteComment(postId, cmtId);
-      message.success(res.message || "Đã xóa bình luận");
-      setPosts((prev) =>
-        prev.map((p) =>
-          p._id === postId
-            ? { ...p, comments: p.comments.filter((c) => c._id !== cmtId) }
-            : p
-        )
-      );
-    } catch (err) {
-      console.error(err);
-      message.error("Lỗi khi xóa bình luận");
-    }
-  };
-
-  const handleUpdateCaption = async (postId, newCaption) => {
-    if (!newCaption?.trim()) {
-      message.warning("Caption không được để trống");
-      return;
-    }
-
-    try {
-      const res = await updateCaption(postId, { caption: newCaption });
-      const updatedPhoto = res?.data?.photo || res?.photo;
-
-      setPosts((prev) =>
-        prev.map((p) => {
-          if (p._id !== postId) return p;
-          if (updatedPhoto) return updatedPhoto;
-          return { ...p, caption: newCaption };
-        })
-      );
-
-      message.success("Cập nhật caption thành công");
-    } catch (err) {
-      console.error(err);
-      message.error("Lỗi khi cập nhật caption");
-    }
   };
 
   return (
@@ -306,21 +127,19 @@ const Feed = () => {
             </div>
 
             {/* Feed bài đăng = PostCard */}
-            {posts && posts.filter(Boolean).length > 0 ? (
-              posts
+            {photos && photos.filter(Boolean).length > 0 ? (
+              photos
                 .filter(Boolean)
                 .map((post) => (
                   <PostCard
                     key={post._id}
                     post={post}
                     currentUserId={currentUser?._id}
-                    getUserName={getUserName}
-                    getUserAvatar={getUserAvatar}
-                    onDeletePost={handleDeletePost}
-                    onAddComment={handleAddComment}
-                    onUpdateComment={handleUpdateComment}
-                    onDeleteComment={handleDeleteComment}
-                    onUpdateCaption={handleUpdateCaption}
+                    onDeletePost={deletePhoto}
+                    onAddComment={addComment}
+                    onUpdateComment={updateComment}
+                    onDeleteComment={deleteComment}
+                    onUpdateCaption={updateCaption}
                   />
                 ))
             ) : (
@@ -328,7 +147,7 @@ const Feed = () => {
             )}
           </div>
 
-          {/* Danh sách bài người dùng */}
+          {/* Danh sách người dùng */}
           <div className="lg:col-span-1">
             <UserList />
           </div>

@@ -4,13 +4,15 @@ import ProfileInfor from "../../component/profile/ProfileInfor";
 import ProfileTabs from "../../component/profile/ProfileTabs";
 import { motion } from "framer-motion";
 import { useAuth } from "../../contexts/AuthContext";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 
 const Profile = () => {
   const { id: paramId } = useParams();
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const { user: stored } = useAuth();
+  const [searchParams] = useSearchParams();
+  const activeTab = searchParams.get("tab") || "posts";
 
   useEffect(() => {
     const viewId = paramId || stored?._id;
@@ -71,7 +73,7 @@ const Profile = () => {
               isOwner={isOwner}
             />
             {/* profile Tab */}
-            <ProfileTabs user_id={user._id} />
+            <ProfileTabs user_id={user._id} activeTab={activeTab} />
           </div>
         </div>
       </motion.div>

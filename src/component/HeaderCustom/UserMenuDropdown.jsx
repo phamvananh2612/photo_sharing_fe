@@ -1,17 +1,16 @@
 import { Menu } from "antd";
-import { Link } from "react-router-dom";
-import {
-  UserOutlined,
-  LogoutOutlined,
-  SettingOutlined,
-  HeartOutlined,
-} from "@ant-design/icons";
+import { Link, useNavigate } from "react-router-dom";
+import { UserOutlined, LogoutOutlined, HeartOutlined } from "@ant-design/icons";
+import { useAuth } from "../../contexts/AuthContext";
 
 const UserMenuDropdown = ({ handleLogout }) => {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+
   return (
     <Menu
       className="
-        !bg-[#180329]        /* nền tím neon, dùng ! để override AntD */
+        !bg-[#180329]
         !text-white
         backdrop-blur-xl
         !border !border-purple-600/40
@@ -25,7 +24,7 @@ const UserMenuDropdown = ({ handleLogout }) => {
           key: "1",
           label: (
             <Link
-              to="/profile"
+              to={`/profile/${user?._id}`}
               className="
                 flex items-center gap-2 
                 px-4 py-2 
@@ -42,33 +41,14 @@ const UserMenuDropdown = ({ handleLogout }) => {
             </Link>
           ),
         },
-        // {
-        //   key: "2",
-        //   label: (
-        //     <Link
-        //       to="/profile/edit"
-        //       className="
-        //         flex items-center gap-2
-        //         px-4 py-2
-        //         text-sm
-        //         !text-white
-        //         hover:!bg-purple-700/40
-        //         hover:!text-white
-        //         rounded-lg
-        //         transition
-        //       "
-        //     >
-        //       <SettingOutlined className="text-purple-300" />
-        //       <span>Cập nhật hồ sơ</span>
-        //     </Link>
-        //   ),
-        // },
+
         {
           key: "3",
           label: (
-            <Link
-              to="/liked"
+            <button
+              onClick={() => navigate(`/profile/${user?._id}?tab=favorite`)}
               className="
+                w-full 
                 flex items-center gap-2 
                 px-4 py-2 
                 text-sm 
@@ -81,10 +61,12 @@ const UserMenuDropdown = ({ handleLogout }) => {
             >
               <HeartOutlined className="text-pink-300" />
               <span>Ảnh đã thích</span>
-            </Link>
+            </button>
           ),
         },
+
         { type: "divider" },
+
         {
           key: "4",
           label: (

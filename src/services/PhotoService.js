@@ -10,7 +10,7 @@ export const getPhotos = async (userId) => {
 // Tạo mới comment cho 1 photo
 // POST /api/photos/:photoId/comments
 export const createComment = async (photoId, cmt) => {
-  const result = await post(`api/photos/${photoId}/comments`, cmt);
+  const result = await post(`api/photos/${photoId}/comments`, { comment: cmt });
   return result;
 };
 
@@ -30,11 +30,12 @@ export const deleteComment = async (photoId, cmtId) => {
 
 // Cập nhật 1 comment
 // PATCH /api/photos/:photoId/comments/:cmtId
-export const updateComment = async (photoId, cmtId, cmt) => {
-  const result = await patch(`api/photos/${photoId}/comments/${cmtId}`, cmt);
+export const updateComment = async (photoId, cmtId, newContent) => {
+  const result = await patch(`api/photos/${photoId}/comments/${cmtId}`, {
+    commentUp: newContent,
+  });
   return result;
 };
-
 // hàm xử lý lấy APi tạo mới 1 ảnh
 // POST /api/photos
 export const uploadPhoto = async (file, caption) => {
@@ -57,9 +58,12 @@ export const getAllPhotos = async () => {
 
 // hàm xử lý API cập nhật caption của 1 ảnh
 export const updateCaption = async (photo_id, newCaption) => {
-  const result = await patch(`api/photos/${photo_id}`, newCaption);
+  const result = await patch(`api/photos/${photo_id}`, {
+    caption: newCaption,
+  });
   return result;
 };
+
 // hàm xử lý APi cập nhật like/unlike khi click vào nút tym
 export const toggleLikePhoto = async (photoId) => {
   const result = await patch(`api/photos/${photoId}/like`);
@@ -69,5 +73,11 @@ export const toggleLikePhoto = async (photoId) => {
 // hàm xử lý API lấy ra danh sách ảnh yêu thích
 export const getWishList = async (userId) => {
   const result = await get(`api/photos/${userId}/favorite`);
+  return result;
+};
+
+// hàm xử lý API lấy thông tin ảnh theo photoId
+export const getPhotoById = async (photoId) => {
+  const result = await get(`api/photos/${photoId}`);
   return result;
 };

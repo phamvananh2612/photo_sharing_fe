@@ -6,14 +6,17 @@ import reportWebVitals from "./reportWebVitals";
 import { BrowserRouter } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import ScrollToTop from "./component/common/ScrollToTop";
+import { PhotoProvider } from "./contexts/PhotoContext";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <AuthProvider>
-    <BrowserRouter>
-      <ScrollToTop />
-      <App />
-    </BrowserRouter>
+    <PhotoProvider>
+      <BrowserRouter>
+        <ScrollToTop />
+        <App />
+      </BrowserRouter>
+    </PhotoProvider>
   </AuthProvider>
 );
 

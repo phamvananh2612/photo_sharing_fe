@@ -3,12 +3,10 @@ import Login from "../pages/Login";
 import Register from "../pages/Register";
 import PrivateRoute from "./PrivateRoute";
 import GuestRoute from "./GuestRoute";
-
-import UserPhotos from "../component/user/UserPhotos";
 import Profile from "../pages/Profile";
-import Posts from "../pages/Posts";
 import Feed from "../pages/Feed";
 import HomePublic from "../pages/Home";
+import PostDetail from "../pages/PostDetail";
 
 const routes = [
   {
@@ -30,12 +28,7 @@ const routes = [
           { path: "feed", element: <Feed /> },
           { path: "profile", element: <Profile /> },
           { path: "profile/:id", element: <Profile /> },
-
-          {
-            path: "posts",
-            element: <Posts />,
-            children: [{ path: "photos/:userId", element: <UserPhotos /> }],
-          },
+          { path: "posts/:photoId", element: <PostDetail /> },
         ],
       },
     ],

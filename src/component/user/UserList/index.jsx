@@ -9,6 +9,7 @@ const UserList = () => {
     const fetchApi = async () => {
       try {
         const result = await getAllUser();
+        // console.log(result);
         setUsers(result.users || []);
       } catch (error) {
         console.error("Lỗi khi lấy danh sách người dùng: ", error);

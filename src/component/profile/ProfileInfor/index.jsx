@@ -18,16 +18,12 @@ const ProfileInfor = ({ user, onUserUpdated, isOwner }) => {
   const firstName = user.first_name || "";
   const lastName = user.last_name || "";
   const loginName = user.login_name || "";
-  const fullName = `${lastName} ${firstName}`.trim() || "";
   const email = user.email || "Chưa cập nhật";
   const location = user.location || "Chưa cập nhật";
   const occupation = user.occupation || "Chưa cập nhật";
   const description = user.description || "Chưa cập nhật";
 
-  const initial =
-    lastName?.charAt(0)?.toUpperCase() ||
-    firstName?.charAt(0)?.toUpperCase() ||
-    "U";
+  const initial = loginName?.charAt(0)?.toUpperCase() || "U";
 
   const profileFields = [
     { key: "last_name", label: "Họ", value: lastName },

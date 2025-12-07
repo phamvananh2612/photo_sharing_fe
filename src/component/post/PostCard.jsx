@@ -1,6 +1,6 @@
 import CommentSection from "./CommentSection";
 import { formatTime } from "../../utils/formatTime";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, Avatar, Button, Input, Popover, Modal } from "antd";
 import {
   MoreOutlined,
@@ -11,34 +11,42 @@ import {
 } from "@ant-design/icons";
 import ActionMenu from "../common/ActionMenu";
 import "./styles.css";
-import { toggleLikePhoto } from "../../services/PhotoService";
+import { usePhotoContext } from "../../contexts/PhotoContext";
 import { message } from "antd";
+import { Link } from "react-router-dom";
 
 const { TextArea } = Input;
 
 const PostCard = ({
   post,
   currentUserId,
-  getUserName,
-  getUserAvatar,
   onDeletePost,
   onAddComment,
   onUpdateComment,
   onDeleteComment,
   onUpdateCaption,
 }) => {
-  const isOwner = currentUserId && currentUserId === post.user_id;
-  const [isEditCaptionOpen, setIsEditCaptionOpen] = useState(false);
-  const [captionValue, setCaptionValue] = useState(post.caption || "");
-  const [isLiking, setIsLiking] = useState(false);
-  const [likesCount, setLikesCount] = useState(
-    post.likesCount ?? post.likes?.length ?? 0
-  );
+  const { toggleLike } = usePhotoContext();
 
-  const [isLiked, setIsLiked] = useState(() => {
-    if (!currentUserId || !post.likes) return false;
-    return post.likes.includes(currentUserId);
-  });
+  const author = post?.user || {};
+  const [isEditCaptionOpen, setIsEditCaptionOpen] = useState(false);
+  const [captionValue, setCaptionValue] = useState(post?.caption || "");
+  const [isLiking, setIsLiking] = useState(false);
+
+  useEffect(() => {
+    setCaptionValue(post?.caption || "");
+  }, [post?.caption]);
+
+  // Tính số tym & trạng thái tym dựa trên post từ Context
+  const likesCount =
+    post?.likesCount ?? (Array.isArray(post?.likes) ? post.likes.length : 0);
+
+  const isLiked =
+    Array.isArray(post?.likes) && currentUserId
+      ? post.likes.some(
+          (id) => id && id.toString() === currentUserId.toString()
+        )
+      : false;
 
   if (!post) {
     return null;
@@ -79,37 +87,11 @@ const PostCard = ({
     />
   );
 
-  const renderOwnerAvatar = () => {
-    const displayName =
-      (getUserName && getUserName(post.user_id)) || "Người dùng";
-    const avatarUrl = (getUserAvatar && getUserAvatar(post.user_id)) || null;
-    const initial = displayName.charAt(0).toUpperCase();
-
-    if (avatarUrl) {
-      return (
-        <Avatar
-          src={avatarUrl}
-          size={40}
-          className="ring-2 ring-purple-500/60"
-        />
-      );
-    }
-
-    return (
-      <Avatar
-        size={40}
-        style={{
-          background:
-            "linear-gradient(135deg, rgba(147,51,234,1) 0%, rgba(79,70,229,1) 100%)",
-        }}
-      >
-        {initial}
-      </Avatar>
-    );
-  };
-
   const ownerName =
-    (getUserName && getUserName(post.user_id)) || "Người dùng ẩn danh";
+    author.login_name || author.last_name || "Người dùng ẩn danh";
+
+  const ownerId =
+    typeof post.user_id === "string" ? post.user_id : post.user_id?._id;
 
   const handleToggleLike = async () => {
     if (!currentUserId) {
@@ -117,15 +99,11 @@ const PostCard = ({
       return;
     }
 
-    try {
-      setIsLiking(true);
-      const res = await toggleLikePhoto(post._id);
+    if (!post?._id) return;
 
-      setLikesCount((prev) => (isLiked ? Math.max(prev - 1, 0) : prev + 1));
-      setIsLiked((prev) => !prev);
-    } catch (error) {
-      console.log("Lỗi khi like ảnh: ", error);
-      message.error("Có lỗi khi thực hiện thao tác thích ảnh");
+    setIsLiking(true);
+    try {
+      await toggleLike(post._id);
     } finally {
       setIsLiking(false);
     }
@@ -133,23 +111,35 @@ const PostCard = ({
 
   return (
     <Card
-      // bordered={false}
-      className="bg-[#180329]/80 border border-purple-800/40 rounded-2xl shadow-xl shadow-purple-900/30 text-white overflow-hidden"
+      className="bg-[#180329]/80 border border-purple-800/60 rounded-2xl 
+      shadow-xl shadow-purple-900/40 overflow-hidden post-card"
       bodyStyle={{ padding: 0 }}
     >
-      <div className="flex items-center justify-between px-4 py-3">
-        <div className="flex items-center gap-1">
-          {renderOwnerAvatar()}
+      {/* Header: Avatar + tên + thời gian + menu */}
+      <div className="flex items-center justify-between px-4 py-3 border-b border-purple-800/60 bg-black/20">
+        <div className="flex items-center gap-3">
+          <Avatar
+            src={author.avatar}
+            size={40}
+            style={{
+              background:
+                "radial-gradient(circle at top, #a855f7, #1e1b4b 60%, #020617)",
+              border: "1px solid rgba(168,85,247,0.6)",
+            }}
+          >
+            {!author.avatar &&
+              (ownerName ? ownerName.charAt(0).toUpperCase() : "U")}
+          </Avatar>
+
           <div className="flex flex-col gap-1">
             <h2 className="!text-white !text-sm font-semibold">{ownerName}</h2>
-            <br />
             <h3 className="!text-xs text-purple-200/70">
               {formatTime(post.date_time)}
             </h3>
           </div>
         </div>
 
-        {isOwner && (
+        {currentUserId && currentUserId === ownerId && (
           <Popover
             content={popoverContent}
             trigger="click"
@@ -158,36 +148,39 @@ const PostCard = ({
           >
             <Button
               type="text"
-              className="
-                !p-1.5
-                hover:bg-white/5
-                rounded-full
-                flex items-center justify-center
-              "
-            >
-              <MoreOutlined className="text-purple-200 text-lg" />
-            </Button>
+              shape="circle"
+              icon={<MoreOutlined className="text-purple-200" />}
+              className="!border-none hover:!bg-white/10"
+            />
           </Popover>
         )}
       </div>
 
-      <div className="bg-black relative">
-        <img
-          src={post.file_name}
-          alt="post"
-          className="w-full max-h-[550px] object-contain bg-black"
-        />
+      {/* Ảnh + nút tym nổi */}
+      <div className="relative bg-black/60">
+        <Link to={`/posts/${post._id}`}>
+          <img
+            src={post.file_name}
+            alt={post.caption || "Ảnh"}
+            className="w-full max-h-[580px] object-contain bg-black"
+          />
+        </Link>
 
         <Button
           type="text"
-          onClick={handleToggleLike}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            handleToggleLike();
+          }}
           loading={isLiking}
-          className="!text-purple-200 hover:!bg-black/40 flex items-center gap-1 !p-2 rounded-full absolute bottom-3 right-3 z-10 bg-black/40"
+          className="!text-purple-200 hover:!bg-black/40 flex items-center gap-1 !p-2 
+             rounded-full absolute bottom-3 right-3 z-10 bg-black/40"
           icon={
             isLiked ? (
-              <HeartFilled size={25} style={{ color: "#ef4444" }} />
+              <HeartFilled style={{ color: "#ef4444", fontSize: 20 }} />
             ) : (
-              <HeartOutlined size={25} />
+              <HeartOutlined style={{ fontSize: 20 }} />
             )
           }
         >
@@ -195,26 +188,31 @@ const PostCard = ({
         </Button>
       </div>
 
+      {/* Caption */}
       <div className="px-4 py-3">
         {post.caption && post.caption.trim() ? (
-          <h2 className="!text-sm text-purple-100">{post.caption}</h2>
+          <p className="text-purple-50 text-sm whitespace-pre-line">
+            {post.caption}
+          </p>
         ) : (
-          <h2 className="!text-sm text-purple-300/60 italic">
-            (Không có mô tả)
-          </h2>
+          <p className="text-purple-300/60 italic text-sm">
+            Chưa có caption nào cho bức ảnh này.
+          </p>
         )}
       </div>
 
-      <CommentSection
-        post={post}
-        currentUserId={currentUserId}
-        getUserName={getUserName}
-        getUserAvatar={getUserAvatar}
-        onAddComment={onAddComment}
-        onUpdateComment={onUpdateComment}
-        onDeleteComment={onDeleteComment}
-      />
+      {/* Comment section */}
+      <div className="border-t border-purple-800/60 bg-black/30 px-4 py-3">
+        <CommentSection
+          post={post}
+          currentUserId={currentUserId}
+          onAddComment={onAddComment}
+          onUpdateComment={onUpdateComment}
+          onDeleteComment={onDeleteComment}
+        />
+      </div>
 
+      {/* Modal chỉnh caption */}
       <Modal
         open={isEditCaptionOpen}
         onOk={handleSaveCaption}
@@ -222,8 +220,8 @@ const PostCard = ({
         okText="Lưu"
         cancelText="Hủy"
         centered
-        className="custom-modal"
         title="Chỉnh sửa caption"
+        className="custom-modal"
       >
         <TextArea
           rows={3}
